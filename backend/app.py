@@ -3,6 +3,7 @@ from flask_cors import CORS
 from utils.nlp_processor import preprocess_text, extract_skills
 from utils.semantic_matcher import calculate_similarity
 from utils.ranking import calculate_final_score
+from utils.entity_extractor import extract_entities
 
 import os
 
@@ -33,6 +34,7 @@ def upload_resume():
     file.save(file_path)
 
     extracted_text = extract_text_from_pdf(file_path)
+    entities = extract_entities(extracted_text)
 
     tokens = preprocess_text(extracted_text)
 
@@ -51,11 +53,19 @@ def upload_resume():
         skill_count
     )
     return jsonify({
-        "filename": file.filename,
-        "skills": skills,
-        "resume_text": extracted_text,
-        "match_score": match_score,
-        "final_score": final_score
+
+    "filename": file.filename,
+
+    "resume_text": extracted_text,
+
+    "skills": skills,
+
+    "match_score": match_score,
+
+    "final_score": final_score,
+
+    "entities": entities
+
     })
 
 if __name__ == '__main__':
