@@ -4,6 +4,7 @@ from utils.nlp_processor import preprocess_text, extract_skills
 from utils.semantic_matcher import calculate_similarity
 from utils.ranking import calculate_final_score
 from utils.entity_extractor import extract_entities
+from utils.bias_detector import anonymize_resume 
 
 import os
 
@@ -35,6 +36,10 @@ def upload_resume():
 
     extracted_text = extract_text_from_pdf(file_path)
     entities = extract_entities(extracted_text)
+    anonymous_text, removed_items, fairness_score = anonymize_resume(
+        extracted_text,
+        entities
+    )
 
     tokens = preprocess_text(extracted_text)
 
@@ -43,7 +48,7 @@ def upload_resume():
     job_description = request.form.get('job_description')
 
     match_score = calculate_similarity(
-        extracted_text,
+        anonymous_text,
         job_description
     )
     skill_count = len(skills)
@@ -64,7 +69,11 @@ def upload_resume():
 
     "final_score": final_score,
 
-    "entities": entities
+    "entities": entities,
+    "anonymous_resume": anonymous_text,
+    "removed_items": removed_items,
+    "fairness_score": fairness_score
+
 
     })
 
