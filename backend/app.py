@@ -5,6 +5,7 @@ from utils.semantic_matcher import calculate_similarity
 from utils.ranking import calculate_final_score
 from utils.entity_extractor import extract_entities
 from utils.bias_detector import anonymize_resume 
+from utils.explanation_engine import generate_explanation
 
 import os
 
@@ -57,6 +58,10 @@ def upload_resume():
         match_score,
         skill_count
     )
+    explanations = generate_explanation(
+        match_score,
+        skills
+    )
     return jsonify({
 
     "filename": file.filename,
@@ -72,7 +77,8 @@ def upload_resume():
     "entities": entities,
     "anonymous_resume": anonymous_text,
     "removed_items": removed_items,
-    "fairness_score": fairness_score
+    "fairness_score": fairness_score,
+    "explanations": explanations
 
 
     })
