@@ -6,7 +6,7 @@ from utils.ranking import calculate_final_score
 from utils.entity_extractor import extract_entities
 from utils.bias_detector import anonymize_resume 
 from utils.explanation_engine import generate_explanation
-
+from db import candidates
 import os
 
 from utils.resume_parser import extract_text_from_pdf
@@ -58,6 +58,23 @@ def upload_resume():
         match_score,
         skill_count
     )
+    candidate_data = {
+
+    "name": entities["name"],
+
+    "skills": skills,
+
+    "match_score": match_score,
+
+    "final_score": final_score,
+
+    "emails": entities["emails"],
+
+    "organizations": entities["organizations"]
+
+    }
+
+    candidates.insert_one(candidate_data)
     explanations = generate_explanation(
         match_score,
         skills
@@ -82,6 +99,17 @@ def upload_resume():
 
 
     })
+@app.route('/dashboard')
+def dashboard():
+
+    data = list(
+        candidates.find(
+            {},
+            {'_id':0}
+        )
+    )
+
+    return jsonify(data)
 
 if __name__ == '__main__':
     app.run(debug=True)
